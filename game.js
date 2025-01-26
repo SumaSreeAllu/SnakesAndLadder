@@ -6,6 +6,8 @@ let winSound = new Audio('winharpsichord-39642.mp3');
 let tog = 1;
 let p1sum = 0;
 let p2sum = 0;
+let p3sum = 0;
+let p4sum = 0;
 
 const positions = {
     1: 38, 4: 14, 8: 30, 21: 42, 28: 76, 32: 10,
@@ -15,7 +17,10 @@ const positions = {
 
 let redPlayerName = prompt("Enter the name of the Red coin player:") || "Red Player";
 let yellowPlayerName = prompt("Enter the name of the Yellow coin player:") || "Yellow Player";
+let greenPlayerName = prompt("Enter the name of the Green coin player:") || "Green Player"; // Third player
+let bluePlayerName = prompt("Enter the name of the Blue coin player:") || "Blue Player"; // Fourth player
 
+// Update the play function to handle the fourth player
 function play(player, psum, correction, num) {
     let sum;
     if (psum === 'p1sum') {
@@ -60,6 +65,48 @@ function play(player, psum, correction, num) {
         }
 
         sum = p2sum;
+    } else if (psum === 'p3sum') {
+        p3sum += num;
+        if (p3sum > 100) p3sum -= num;
+
+        const previousPosition = p3sum;
+
+        if (positions[p3sum] && positions[p3sum] < p3sum) {
+            alert("Oh no! You landed on a snake. Get ready for a question to save yourself.");
+            const correct = handleSaviorQuestion(greenPlayerName);
+            if (!correct) p3sum = positions[p3sum];
+        } else {
+            p3sum = positions[p3sum] || p3sum;
+        }
+
+        if (positions[previousPosition] && positions[previousPosition] > previousPosition) {
+            alert("Great! You found a ladder. Answer a bonus question to climb it!");
+            const correct = handleBonusQuestion(greenPlayerName);
+            if (!correct) p3sum = previousPosition;
+        }
+
+        sum = p3sum;
+    } else if (psum === 'p4sum') {
+        p4sum += num;
+        if (p4sum > 100) p4sum -= num;
+
+        const previousPosition = p4sum;
+
+        if (positions[p4sum] && positions[p4sum] < p4sum) {
+            alert("Oh no! You landed on a snake. Get ready for a question to save yourself.");
+            const correct = handleSaviorQuestion(bluePlayerName);
+            if (!correct) p4sum = positions[p4sum];
+        } else {
+            p4sum = positions[p4sum] || p4sum;
+        }
+
+        if (positions[previousPosition] && positions[previousPosition] > previousPosition) {
+            alert("Great! You found a ladder. Answer a bonus question to climb it!");
+            const correct = handleBonusQuestion(bluePlayerName);
+            if (!correct) p4sum = previousPosition;
+        }
+
+        sum = p4sum;
     }
 
     document.getElementById(player).style.transition = 'linear all .5s';
@@ -67,11 +114,12 @@ function play(player, psum, correction, num) {
 
     if (sum === 100) {
         winSound.play();
-        alert(`${player === 'p1' ? redPlayerName : yellowPlayerName} Won!!`);
+        alert(`${player === 'p1' ? redPlayerName : player === 'p2' ? yellowPlayerName : player === 'p3' ? greenPlayerName : bluePlayerName} Won!!`);
         location.reload();
     }
 }
 
+// Handle savior and bonus questions (same as before)
 function handleSaviorQuestion(playerName) {
     const saviorAnswer = prompt(`${playerName}, Did you get it correct? (yes/no)`);
     return saviorAnswer && saviorAnswer.toLowerCase() === 'yes';
@@ -82,6 +130,7 @@ function handleBonusQuestion(playerName) {
     return bonusAnswer && bonusAnswer.toLowerCase() === 'yes';
 }
 
+// Update the player position (same as before)
 function updatePlayerPosition(player, sum, correction) {
     if (sum < 10) {
         document.getElementById(player).style.left = `${(sum - 1) * 62}px`;
@@ -111,6 +160,7 @@ function updatePlayerPosition(player, sum, correction) {
     }
 }
 
+// Update the dice roll logic to handle four players
 document.getElementById('diceBtn').addEventListener('click', function () {
     const difficulty = prompt("Select difficulty: easy, medium, or hard").toLowerCase();
     let diceRoll;
@@ -126,24 +176,30 @@ document.getElementById('diceBtn').addEventListener('click', function () {
         return;
     }
 
-    const userAnswer = prompt(`Did ${tog % 2 !== 0 ? redPlayerName : yellowPlayerName} get it correct? (yes/no)`);
+    const userAnswer = prompt(`Did ${tog % 4 === 1 ? redPlayerName : tog % 4 === 2 ? yellowPlayerName : tog % 4 === 3 ? greenPlayerName : bluePlayerName} get it correct? (yes/no)`);
 
     if (userAnswer && userAnswer.toLowerCase() === 'yes') {
         rollingSound.play();
-        document.getElementById('dice').innerText = `${tog % 2 !== 0 ? redPlayerName : yellowPlayerName}'s Dice: ${diceRoll}`;
+        document.getElementById('dice').innerText = `${tog % 4 === 1 ? redPlayerName : tog % 4 === 2 ? yellowPlayerName : tog % 4 === 3 ? greenPlayerName : bluePlayerName}'s Dice: ${diceRoll}`;
 
-        if (tog % 2 !== 0) {
+        if (tog % 4 === 1) {
             document.getElementById('tog').innerText = `${yellowPlayerName}'s Turn:`;
             play('p1', 'p1sum', 0, diceRoll);
+        } else if (tog % 4 === 2) {
+            document.getElementById('tog').innerText = `${greenPlayerName}'s Turn:`;
+            play('p2', 'p2sum', 55, diceRoll);
+        } else if (tog % 4 === 3) {
+            document.getElementById('tog').innerText = `${bluePlayerName}'s Turn:`;
+            play('p3', 'p3sum', 110, diceRoll);
         } else {
             document.getElementById('tog').innerText = `${redPlayerName}'s Turn:`;
-            play('p2', 'p2sum', 55, diceRoll);
+            play('p4', 'p4sum', 165, diceRoll);
         }
 
         tog++;  // Switch turn
     } else {
         alert("Wrong answer! Turn skipped.");
-        document.getElementById('tog').innerText = tog % 2 !== 0 ? `${yellowPlayerName}'s Turn:` : `${redPlayerName}'s Turn:`;
+        document.getElementById('tog').innerText = tog % 4 === 1 ? `${yellowPlayerName}'s Turn:` : tog % 4 === 2 ? `${greenPlayerName}'s Turn:` : tog % 4 === 3 ? `${bluePlayerName}'s Turn:` : `${redPlayerName}'s Turn:`;
         tog++;
     }
 });

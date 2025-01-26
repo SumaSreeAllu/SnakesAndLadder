@@ -23,7 +23,9 @@ body {
 }
 
 #p1,
-#p2 {
+#p2,
+#p3,
+#p4 {
   width: 50px;
   height: 50px;
   border-radius: 100px;
@@ -51,7 +53,22 @@ body {
   transition: all linear 0.5s;
   background-color: rgb(243, 181, 46);
 }
-
+#p3 {
+  z-index: 2;
+  position: relative;
+  top: -55px;
+  left: -62px;
+  transition: all linear 0.5s;
+  background-color: rgb(56, 243, 46);
+}
+#p4 {
+  z-index: 2;
+  position: relative;
+  top: -55px;
+  left: -62px;
+  transition: all linear 0.5s;
+  background-color: rgb(52, 46, 243);
+}
 img {
   position: relative;
   top: -615px;
